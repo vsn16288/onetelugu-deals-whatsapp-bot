@@ -7,18 +7,22 @@ require("dotenv").config();
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 const twilioNumber = process.env.TWILIO_PHONE_NUMBER || 'whatsapp:+14155238886';
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false })); // Handles x-www-form-urlencoded
+app.use(express.json()); // Handles JSON bodies
 
-app.post("/webhook", async (req, res) => {
-  const incomingMsg = req.body.Body?.toLowerCase();
-  const from = req.body.From;
-
-  console.log("📩 Message from", from, ":", incomingMsg);
-
-  if (!incomingMsg) {
-    return res.status(400).send("No message received.");
-  }
+app.post("/webhook", (req, res) => {
+    const body = req.body.Body;
+    const from = req.body.From;
+  
+    console.log("📩 Incoming WhatsApp message:", body, "from:", from);
+  
+    if (!body) {
+      return res.status(400).send("❌ No message body received");
+    }
+  
+    return res.send("✅ Message received: " + body);
+  });
+  
 
   // Send back a WhatsApp reply using Twilio API
   try {
