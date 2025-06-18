@@ -1,32 +1,28 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const { getPrices } = require('./priceService');
-const { sendMessage } = require('./twilioClient');
-
-require('dotenv').config();
+// Express & body-parser setup
+const express = require("express");
 const app = express();
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.post('/webhook', async (req, res) => {
-    const incomingMsg = req.body.Body?.trim();
-    const from = req.body.From;
+// Webhook endpoint
+app.post("/webhook", async (req, res) => {
+  const incomingMsg = req.body.Body?.toLowerCase();
+  const from = req.body.From;
 
-    if (!incomingMsg) {
-        return res.send("No product name received.");
-    }
+  console.log("📩 Message from", from, ":", incomingMsg);
 
-    const prices = getPrices(incomingMsg);
-    let reply = `🔍 *${incomingMsg}* Price Comparison:\n\n`;
+  if (!incomingMsg) {
+    return res.send("No message received.");
+  }
 
-    prices.forEach(p => {
-        reply += `🛒 ${p.platform}: ₹${p.price}\n👉 [Buy Now](${p.link})\n\n`;
-    });
-
-    await sendMessage(from, reply);
-    res.send('Success');
+  // Dummy reply for now
+  return res.send("🔍 Searching for: " + incomingMsg);
 });
 
-app.get('/', (req, res) => res.send('OneTelugu Deals Bot Running'));
+// Root route (optional)
+app.get("/", (req, res) => {
+  res.send("✅ OneTelugu Deals Bot running");
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Bot server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server started on port ${PORT}`));
