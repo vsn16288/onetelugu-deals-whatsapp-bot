@@ -1,46 +1,32 @@
+// server.js
+
 const express = require("express");
-const app = express();
 const twilio = require("twilio");
+const app = express();
 require("dotenv").config();
 
-// Twilio setup
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Twilio client setup
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-const twilioNumber = process.env.TWILIO_PHONE_NUMBER || 'whatsapp:+14155238886';
 
-app.use(express.urlencoded({ extended: false })); // Handles x-www-form-urlencoded
-app.use(express.json()); // Handles JSON bodies
-
-app.post("/webhook", (req, res) => {
-    const body = req.body.Body;
-    const from = req.body.From;
-  
-    console.log("📩 Incoming WhatsApp message:", body, "from:", from);
-  
-    if (!body) {
-      return res.status(400).send("❌ No message body received");
-    }
-  
-    return res.send("✅ Message received: " + body);
-  });
-  
-
-  // Send back a WhatsApp reply using Twilio API
-  try {
-    await client.messages.create({
-      from: twilioNumber,
-      to: from,
-      body: `🔍 You searched for: ${incomingMsg}`,
-    });
-    res.status(200).send("✅ Reply sent");
-  } catch (err) {
-    console.error("❌ Error sending message:", err);
-    res.status(500).send("Error");
-  }
-});
-
+// Root route to verify server is up
 app.get("/", (req, res) => {
   res.send("✅ OneTelugu Deals Bot running");
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server started on port ${PORT}`));
+// Webhook endpoint for Twilio WhatsApp
+app.post("/webhook", async (req, res) => {
+  const incomingMsg = req.body.Body?.toLowerCase();
+  const from = req.body.From;
+
+  console.log("📩 Message from", from, ":", incomingMsg);
+
+  if (!incomingMsg) {
+    return res.send("No message received.");
+  }
+
+  try {
+    // Dummy response – replace with actual product logic later
+    const reply = `🔍 You searched for: *${incoming*
